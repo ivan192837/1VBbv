@@ -630,6 +630,27 @@
             }
         });
 
+        document.getElementById('userInput').addEventListener('paste', function(e) {
+            const items = (e.clipboardData || window.clipboardData).items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    if (!blob) continue;
+                    
+                    attachedImageName = "pasted_image.png";
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        attachedImageBase64 = event.target.result.split(',')[1];
+                        const preview = document.getElementById("imagePreview");
+                        const previewImg = document.getElementById("previewImg");
+                        previewImg.src = event.target.result;
+                        preview.style.display = "inline-block";
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
         let attachedImageBase64 = null;
         let attachedImageName = null;
 
