@@ -10,6 +10,7 @@ node_modules/
 *.sln
 *.csproj
 *.txt
+!requirements.txt
 *.csv
 data/
 chess/
