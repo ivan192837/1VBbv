@@ -367,7 +367,7 @@
             padding: 12px 15px;
             border-radius: 4px;
             background: #161b1d;
-            border-left: 4px solid #333;
+            border: 1px solid #2b3237;
             line-height: 1.5;
             color: #ddd;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -375,14 +375,12 @@
         }
 
         .msg.user {
-            border-left-color: var(--accent-cyan);
             background: #1a2024;
             font-weight: 500;
+            color: #fff;
         }
 
-        .msg.ai {
-            border-left-color: var(--accent-orange);
-        }
+
 
         .msg.err {
             border-left-color: #d9534f;
@@ -598,10 +596,9 @@
                 </div>
             </div>
 
-            <!-- Qwen AI Bar  -->
+            <!-- Smart Search Bar  -->
             <div class="chat-section">
-                <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Ask AI
-                    (Qwen)</h4>
+                <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Smart Search</h4>
                 <div class="chat-box" id="chatBox"></div>
                 <!-- Превью прикреплённого изображения -->
                 <div id="imagePreview" style="display:none; margin-bottom:10px; position:relative; display:inline-block;">
@@ -611,7 +608,7 @@
                 <div class="chat-input-row">
                     <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить скриншот">📎</label>
                     <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile(this)">
-                    <input type="text" id="userInput" placeholder="Ask about scikit-learn..."
+                    <input type="text" id="userInput" placeholder="Search documentation or ask a question..."
                         onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Send</button>
                 </div>
@@ -654,7 +651,7 @@
             if (!userText && !attachedImageBase64) return;
 
             // Показываем сообщение пользователя
-            let userHtml = `<div class="msg user"><strong>You:</strong> ${userText || ''}`;
+            let userHtml = `<div class="msg user">🔍 ${userText || '<em>Image search</em>'}`;
             if (attachedImageBase64) {
                 userHtml += `<br><img src="data:image/png;base64,${attachedImageBase64}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
             }
@@ -665,7 +662,7 @@
 
             // Индикатор загрузки
             const loadingId = "load-" + Date.now();
-            chatBox.innerHTML += `<div class="msg" id="${loadingId}" style="color: #777; border-left-color: #555; font-style: italic;">[Processing query...]</div>`;
+            chatBox.innerHTML += `<div class="msg" id="${loadingId}" style="color: #777; border-color: #333; font-style: italic;">[Searching documentation...]</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
 
             // Формируем запрос
@@ -706,7 +703,7 @@
                         .replace(/```([\s\S]*?)```/g, '<div style="background:#0f1214; padding:10px; border-radius:4px; font-family:monospace; margin:10px 0; border:1px solid #2b3237;">$1</div>')
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-                    chatBox.innerHTML += `<div class="msg ai"><strong>Qwen:</strong><br>${aiText}</div>`;
+                    chatBox.innerHTML += `<div class="msg ai">${aiText}</div>`;
                 } else {
                     chatBox.innerHTML += `<div class="msg err">API Error: ${data.error?.message || 'Failed to connect'}</div>`;
                 }
