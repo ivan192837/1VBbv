@@ -12,7 +12,7 @@ import urllib.request
 import ssl
 
 # === НАСТРОЙКИ ===
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL = "qwen/qwen3.6-plus:free"  # поддерживает text + image + video
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # =================
