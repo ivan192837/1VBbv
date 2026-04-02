@@ -596,8 +596,12 @@
                 </div>
             </div>
 
+            <div id="chatToggleBtn" style="text-align: right; margin-top: 15px;">
+                <span style="color: #222a2f; font-size: 10px; cursor: pointer; user-select: none;" title="Smart Search">▼</span>
+            </div>
+
             <!-- Smart Search Bar  -->
-            <div class="chat-section">
+            <div class="chat-section" style="display: none;">
                 <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Smart Search</h4>
                 <div class="chat-box" id="chatBox"></div>
                 <!-- Превью прикреплённого изображения -->
@@ -617,6 +621,15 @@
     </div>
 
     <script>
+        document.getElementById('chatToggleBtn').addEventListener('click', function() {
+            const chat = document.querySelector('.chat-section');
+            if (chat.style.display === 'none') {
+                chat.style.display = 'block';
+            } else {
+                chat.style.display = 'none';
+            }
+        });
+
         let attachedImageBase64 = null;
         let attachedImageName = null;
 
