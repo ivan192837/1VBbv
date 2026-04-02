@@ -631,9 +631,14 @@
         });
 
         document.getElementById('userInput').addEventListener('paste', function(e) {
-            const items = (e.clipboardData || window.clipboardData).items;
+            const clipboardData = e.clipboardData || window.clipboardData || (e.originalEvent && e.originalEvent.clipboardData);
+            if (!clipboardData) return;
+            const items = clipboardData.items;
+            if (!items) return;
+
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault(); // Останавливаем стандартную вставку (чтобы не сломать инпут)
                     const blob = items[i].getAsFile();
                     if (!blob) continue;
                     
@@ -647,6 +652,7 @@
                         preview.style.display = "inline-block";
                     };
                     reader.readAsDataURL(blob);
+                    break; // Берём только первую картинку
                 }
             }
         });
