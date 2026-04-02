@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>scikit-learn: machine learning in Python</title>
+    <style>
+        :root {
+            --bg-navbar: #1b2124;
+            --bg-body: #161b1d;
+            --card-bg: #1c2226;
+            --text-light: #e0e0e0;
+            --text-dim: #a0a0a0;
+            --accent-cyan: #42b4d6;
+            --accent-orange: #f59e38;
+            --accent-blue: #238ab2;
+            --border-color: #2b3237;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: var(--bg-navbar);
+            height: 65px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #111;
+            font-size: 14px;
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            margin-right: 35px;
+            position: relative;
+        }
+
+        .logo-circles {
+            display: flex;
+            position: relative;
+            width: 85px;
+            height: 50px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .circle-blue {
+            position: absolute;
+            left: 0;
+            width: 34px;
+            height: 34px;
+            background-color: #42b4d6;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .circle-orange {
+            position: absolute;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background-color: #f59e38;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .logo-text {
+            position: absolute;
+            left: 0;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .logo-text-scikit {
+            color: white;
+            font-weight: bold;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            font-size: 13px;
+            margin-right: 2px;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-text-learn {
+            color: black;
+            font-family: "Brush Script MT", "Comic Sans MS", cursive;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            margin-left: -2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            font-weight: 500;
+            font-size: 13.5px;
+        }
+
+        .nav-links a {
+            color: #c0c0c0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: #c0c0c0;
+            font-size: 15px;
+        }
+
+        .version-badge {
+            background: transparent;
+            border: 1px solid #444;
+            color: #c0c0c0;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .version-badge:hover {
+            color: white;
+            border-color: #666;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(90deg, #1d6a8b 0%, #3e889b 30%, #f69f40 100%);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .hero-left {
+            flex: 1;
+            max-width: 50%;
+        }
+
+        .hero-left h1 {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 52px;
+            color: white;
+            margin: 0 0 5px 0;
+            letter-spacing: 1px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-left h2 {
+            font-style: italic;
+            font-size: 22px;
+            color: white;
+            margin: 0 0 25px 0;
+            font-weight: normal;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+            opacity: 0.95;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-orange {
+            background-color: #f59e38;
+            color: black;
+            padding: 8px 16px;
+            border-radius: 3px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-orange:hover {
+            background-color: #e08e2f;
+        }
+
+        .hero-right {
+            flex: 1;
+            max-width: 50%;
+            color: black;
+            font-weight: 600;
+            font-size: 15.5px;
+            line-height: 1.6;
+        }
+
+        .hero-right ul {
+            padding-left: 0;
+            margin: 0;
+            list-style-position: inside;
+        }
+
+        .hero-right li {
+            margin-bottom: 6px;
+        }
+
+        /* Main Cards */
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-body {
+            padding: 20px 20px 15px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h3 {
+            color: var(--accent-cyan);
+            margin: 0 0 12px 0;
+            font-size: 20px;
+            text-decoration: underline;
+            text-decoration-color: #2b616a;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 14.5px;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+
+        .card-meta {
+            font-size: 13.5px;
+            color: #999;
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+
+        .card-meta strong {
+            color: #fff;
+        }
+
+        .card-link {
+            color: var(--accent-cyan);
+            text-decoration: underline;
+            text-decoration-color: #2b616a;
+        }
+
+        .card-link:hover {
+            color: #5ad0f2;
+        }
+
+        .card-img-wrapper {
+            background-color: #e0e0e0;
+            width: 100%;
+            border-top: 1px solid #111;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+        }
+
+        .real-img {
+            max-height: 130px;
+            max-width: 90%;
+            object-fit: contain;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-blue-full {
+            background-color: var(--accent-blue);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14.5px;
+            border-top: 1px solid #1a6f8f;
+        }
+
+        .btn-blue-full:hover {
+            background-color: #1e7a9e;
+        }
+
+        /* DeepSeek Chat Section */
+        .chat-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-box {
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            border-radius: 4px;
+            background: #161b1d;
+            border-left: 4px solid #333;
+            line-height: 1.5;
+            color: #ddd;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .msg.user {
+            border-left-color: var(--accent-cyan);
+            background: #1a2024;
+            font-weight: 500;
+        }
+
+        .msg.ai {
+            border-left-color: var(--accent-orange);
+        }
+
+        .msg.err {
+            border-left-color: #d9534f;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 12px 20px;
+            background: #101416;
+            color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 14.5px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .chat-input-row input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 1px var(--accent-cyan);
+        }
+
+        .chat-input-row button {
+            padding: 12px 25px;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14.5px;
+            transition: background-color 0.2s;
+        }
+
+        .chat-input-row button:hover {
+            background-color: #1e7a9e;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-body);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3d464d;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4d5761;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="container">
+            <div class="nav-left">
+                <a href="#" class="navbar-brand">
+                    <div class="logo-circles">
+                        <div class="circle-blue"></div>
+                        <div class="circle-orange"></div>
+                        <div class="logo-text">
+                            <span class="logo-text-scikit">scikit</span><span class="logo-text-learn">learn</span>
+                        </div>
+                    </div>
+                </a>
+                <div class="nav-links">
+                    <a href="#">Install</a>
+                    <a href="#">User Guide</a>
+                    <a href="#">API</a>
+                    <a href="#">Examples</a>
+                    <a href="#">Community ↗</a>
+                    <a href="#">More ▾</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <span style="cursor:pointer">🔍</span>
+                <span style="cursor:pointer">🌓</span>
+                <span style="font-family: monospace; font-weight:bold; cursor:pointer">&lt; / &gt;</span>
+                <button class="version-badge">1.8.0 (stable) ▾</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="container">
+            <div class="hero-left">
+                <h1>scikit-learn</h1>
+                <h2>Machine Learning in Python</h2>
+                <div class="hero-buttons">
+                    <button class="btn-orange">Getting Started</button>
+                    <button class="btn-orange">Release Highlights for 1.8</button>
+                </div>
+            </div>
+            <div class="hero-right">
+                <ul>
+                    <li>Simple and efficient tools for predictive data analysis</li>
+                    <li>Accessible to everybody, and reusable in various contexts</li>
+                    <li>Built on NumPy, SciPy, and matplotlib</li>
+                    <li>Open source, commercially usable - BSD license</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="cards-grid">
+                <!-- Classification -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Classification</h3>
+                        <p>Identifying which category an object belongs to.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Spam detection, image recognition.</div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">Gradient
+                                boosting</a>, <a href="#" class="card-link">nearest neighbors</a>, <a href="#"
+                                class="card-link">random forest</a>, <a href="#" class="card-link">logistic
+                                regression</a>, and <a href="#" class="card-link">more...</a></div>
+                    </div>
+                    <div class="card-img-wrapper">
+                        <img src="classification.png" alt="Classification Demo" class="real-img">
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+
+                <!-- Regression -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Regression</h3>
+                        <p>Predicting a continuous-valued attribute associated with an object.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Drug response, stock prices.</div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">Gradient
+                                boosting</a>, <a href="#" class="card-link">nearest neighbors</a>, <a href="#"
+                                class="card-link">random forest</a>, <a href="#" class="card-link">ridge</a>, and <a
+                                href="#" class="card-link">more...</a></div>
+                    </div>
+                    <div class="card-img-wrapper" style="background-color:#fff;">
+                        <img src="regression.png" alt="Regression Demo" class="real-img">
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+
+                <!-- Clustering -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Clustering</h3>
+                        <p>Automatic grouping of similar objects into sets.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Customer segmentation, grouping experiment
+                            outcomes.</div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">k-Means</a>,
+                            <a href="#" class="card-link">HDBSCAN</a>, <a href="#" class="card-link">hierarchical
+                                clustering</a>, and <a href="#" class="card-link">more...</a></div>
+                    </div>
+                    <div class="card-img-wrapper">
+                        <img src="clustering.png" alt="Clustering Demo" class="real-img">
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+
+                <!-- Dimensionality reduction -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Dimensionality reduction</h3>
+                        <p>Reducing the number of random variables to consider.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Visualization, increased efficiency.</div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">PCA</a>, <a
+                                href="#" class="card-link">feature selection</a>, <a href="#"
+                                class="card-link">non-negative matrix factorization</a>, and <a href="#"
+                                class="card-link">more...</a></div>
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+
+                <!-- Model selection -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Model selection</h3>
+                        <p>Comparing, validating and choosing parameters and models.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Improved accuracy via parameter tuning.
+                        </div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">grid
+                                search</a>, <a href="#" class="card-link">cross validation</a>, <a href="#"
+                                class="card-link">metrics</a>, and <a href="#" class="card-link">more...</a></div>
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+
+                <!-- Preprocessing -->
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Preprocessing</h3>
+                        <p>Feature extraction and normalization.</p>
+                        <div class="card-meta"><strong>Applications:</strong> Transforming input data such as text for
+                            use with machine learning algorithms.</div>
+                        <div class="card-meta"><strong>Algorithms:</strong> <a href="#"
+                                class="card-link">preprocessing</a>, <a href="#" class="card-link">feature
+                                extraction</a>, and <a href="#" class="card-link">more...</a></div>
+                    </div>
+                    <a href="#" class="btn-blue-full">Examples</a>
+                </div>
+            </div>
+
+            <!-- Qwen AI Bar  -->
+            <div class="chat-section">
+                <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Ask AI
+                    (Qwen)</h4>
+                <div class="chat-box" id="chatBox"></div>
+                <!-- Превью прикреплённого изображения -->
+                <div id="imagePreview" style="display:none; margin-bottom:10px; position:relative; display:inline-block;">
+                    <img id="previewImg" style="max-height:80px; border-radius:6px; border:1px solid #3d454b;">
+                    <button onclick="removeImage()" style="position:absolute; top:-8px; right:-8px; background:#d9534f; color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; line-height:22px; padding:0;">✕</button>
+                </div>
+                <div class="chat-input-row">
+                    <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить скриншот">📎</label>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile(this)">
+                    <input type="text" id="userInput" placeholder="Ask about scikit-learn..."
+                        onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let attachedImageBase64 = null;
+        let attachedImageName = null;
+
+        function previewFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            attachedImageName = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                attachedImageBase64 = e.target.result.split(',')[1]; // только base64 без prefix
+                const preview = document.getElementById("imagePreview");
+                const previewImg = document.getElementById("previewImg");
+                previewImg.src = e.target.result;
+                preview.style.display = "inline-block";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            attachedImageBase64 = null;
+            attachedImageName = null;
+            document.getElementById("imagePreview").style.display = "none";
+            document.getElementById("fileInput").value = "";
+        }
+
+        async function sendMessage() {
+            const inputField = document.getElementById("userInput");
+            const chatBox = document.getElementById("chatBox");
+            const userText = inputField.value.trim();
+
+            if (!userText && !attachedImageBase64) return;
+
+            // Показываем сообщение пользователя
+            let userHtml = `<div class="msg user"><strong>You:</strong> ${userText || ''}`;
+            if (attachedImageBase64) {
+                userHtml += `<br><img src="data:image/png;base64,${attachedImageBase64}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
+            }
+            userHtml += `</div>`;
+            chatBox.innerHTML += userHtml;
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Индикатор загрузки
+            const loadingId = "load-" + Date.now();
+            chatBox.innerHTML += `<div class="msg" id="${loadingId}" style="color: #777; border-left-color: #555; font-style: italic;">[Processing query...]</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Формируем запрос
+            const requestBody = {
+                messages: [
+                    { role: "system", content: "You are a helpful programming assistant. Return concise answers." },
+                    { role: "user", content: userText || "Что изображено на этом скриншоте?" }
+                ]
+            };
+
+            if (attachedImageBase64) {
+                requestBody.image = attachedImageBase64;
+                requestBody.image_name = attachedImageName || "screenshot.png";
+            }
+
+            // Сбрасываем прикреплённое изображение
+            removeImage();
+
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (response.ok) {
+                    let aiText = data.choices[0].message.content
+                        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                        .replace(/\n(.*?\n)/g, '<br>$1')
+                        .replace(/(&lt;br&gt;)/g, '<br>');
+
+                    aiText = aiText.replace(/```python([\s\S]*?)```/g, '<div style="background:#0f1214; padding:10px; border-radius:4px; font-family:monospace; margin:10px 0; border:1px solid #2b3237;">$1</div>')
+                        .replace(/```([\s\S]*?)```/g, '<div style="background:#0f1214; padding:10px; border-radius:4px; font-family:monospace; margin:10px 0; border:1px solid #2b3237;">$1</div>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                    chatBox.innerHTML += `<div class="msg ai"><strong>Qwen:</strong><br>${aiText}</div>`;
+                } else {
+                    chatBox.innerHTML += `<div class="msg err">API Error: ${data.error?.message || 'Failed to connect'}</div>`;
+                }
+            } catch (error) {
+                if (document.getElementById(loadingId)) {
+                    document.getElementById(loadingId).remove();
+                }
+                chatBox.innerHTML += `<div class="msg err">Connection Error: ${error.message}</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+
+</html>
