@@ -608,10 +608,14 @@
                 <div id="imagePreview" style="display:none; margin-bottom:10px; position:relative; display:inline-block;">
                     <img id="previewImg" style="max-height:80px; border-radius:6px; border:1px solid #3d454b;">
                     <button onclick="removeImage()" style="position:absolute; top:-8px; right:-8px; background:#d9534f; color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; line-height:22px; padding:0;">✕</button>
+                    <!-- Блок для отображения названия текстового файла -->
+                    <div id="textFilePreview" style="display:none; background:#1a2024; border:1px solid #3d454b; border-radius:4px; padding:8px 12px; font-size:13px; color:#aaa; margin-top:5px;">
+                        📄 <span id="textFileName"></span>
+                    </div>
                 </div>
                 <div class="chat-input-row">
-                    <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить скриншот">📎</label>
-                    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile(this)">
+                    <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить файл">📎</label>
+                    <input type="file" id="fileInput" accept="image/*,.csv,.txt,.json,.py" style="display:none;" onchange="previewFile(this)">
                     <input type="text" id="userInput" placeholder="Search documentation or ask a question..."
                         onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Send</button>
@@ -637,48 +641,67 @@
             if (!items) return;
 
             for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    e.preventDefault(); // Останавливаем стандартную вставку (чтобы не сломать инпут)
-                    const blob = items[i].getAsFile();
-                    if (!blob) continue;
-                    
-                    attachedImageName = "pasted_image.png";
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        attachedImageBase64 = event.target.result.split(',')[1];
-                        const preview = document.getElementById("imagePreview");
-                        const previewImg = document.getElementById("previewImg");
-                        previewImg.src = event.target.result;
-                        preview.style.display = "inline-block";
-                    };
-                    reader.readAsDataURL(blob);
-                    break; // Берём только первую картинку
+                if (items[i].type.indexOf('image') !== -1 || items[i].type.indexOf('text/plain') !== -1) {
+                    // Разрешаем вставку текста как текст, но файлы — как файлы
+                    if (items[i].kind === 'file') {
+                        e.preventDefault();
+                        handleFile(items[i].getAsFile());
+                        break;
+                    }
                 }
             }
         });
 
         let attachedImageBase64 = null;
         let attachedImageName = null;
+        let attachedTextContent = null;
+        let attachedFileName = null;
 
-        function previewFile(input) {
-            const file = input.files[0];
+        function handleFile(file) {
             if (!file) return;
 
-            attachedImageName = file.name;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                attachedImageBase64 = e.target.result.split(',')[1]; // только base64 без prefix
-                const preview = document.getElementById("imagePreview");
-                const previewImg = document.getElementById("previewImg");
-                previewImg.src = e.target.result;
-                preview.style.display = "inline-block";
-            };
-            reader.readAsDataURL(file);
+            attachedImageBase64 = null;
+            attachedTextContent = null;
+
+            if (file.type.startsWith('image/')) {
+                attachedImageName = file.name || "pasted_image.png";
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    attachedImageBase64 = event.target.result.split(',')[1];
+                    document.getElementById("previewImg").src = event.target.result;
+                    document.getElementById("previewImg").style.display = "inline-block";
+                    document.getElementById("textFilePreview").style.display = "none";
+                    document.getElementById("imagePreview").style.display = "inline-block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Текстовый файл (CSV, TXT и т.д.)
+                if (file.size > 100 * 1024) { // Ограничение в 100 КБ, чтобы не сжечь токены
+                    alert("Файл слишком большой! Пожалуйста, загрузи файл меньше 100 КБ, иначе API выдаст ошибку токенов.");
+                    return;
+                }
+                attachedFileName = file.name || "pasted_text.txt";
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    attachedTextContent = event.target.result;
+                    document.getElementById("textFileName").innerText = attachedFileName;
+                    document.getElementById("textFilePreview").style.display = "inline-block";
+                    document.getElementById("previewImg").style.display = "none";
+                    document.getElementById("imagePreview").style.display = "inline-block";
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function previewFile(input) {
+            handleFile(input.files[0]);
         }
 
         function removeImage() {
             attachedImageBase64 = null;
             attachedImageName = null;
+            attachedTextContent = null;
+            attachedFileName = null;
             document.getElementById("imagePreview").style.display = "none";
             document.getElementById("fileInput").value = "";
         }
@@ -688,10 +711,10 @@
             const chatBox = document.getElementById("chatBox");
             const userText = inputField.value.trim();
 
-            if (!userText && !attachedImageBase64) return;
+            if (!userText && !attachedImageBase64 && !attachedTextContent) return;
 
             // Показываем сообщение пользователя
-            let userHtml = `<div class="msg user">🔍 ${userText || '<em>Image search</em>'}`;
+            let userHtml = `<div class="msg user">🔍 ${userText || (attachedTextContent ? `<em>File attached: ${attachedFileName}</em>` : '<em>Image search</em>')}`;
             if (attachedImageBase64) {
                 userHtml += `<br><img src="data:image/png;base64,${attachedImageBase64}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
             }
@@ -705,11 +728,16 @@
             chatBox.innerHTML += `<div class="msg" id="${loadingId}" style="color: #777; border-color: #333; font-style: italic;">[Searching documentation...]</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
 
+            let promptContent = userText || "Что изображено на этом скриншоте?";
+            if (attachedTextContent) {
+                promptContent += `\n\n[Содержимое файла ${attachedFileName}]:\n\`\`\`\n${attachedTextContent}\n\`\`\``;
+            }
+
             // Формируем запрос
             const requestBody = {
                 messages: [
                     { role: "system", content: "You are a helpful programming assistant. Return concise answers." },
-                    { role: "user", content: userText || "Что изображено на этом скриншоте?" }
+                    { role: "user", content: promptContent }
                 ]
             };
 
