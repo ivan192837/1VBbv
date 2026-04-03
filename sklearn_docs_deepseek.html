@@ -506,7 +506,10 @@
                 <div class="card">
                     <div class="card-body">
                         <h3>Classification</h3>
-                        <p>Identifying which category an object belongs to.</p>
+                        <p style="font-size: 6px;">
+                            https://docs.google.com/document/d/1wO7B5THG8SUKql0jhZ7UuX3Y6g5KD6U6Pq15GBZKVpk/edit?usp=sharing
+                        </p>
+                        <p style="font-size: 12px;">Identifying which category an object belongs to.</p>
                         <div class="card-meta"><strong>Applications:</strong> Spam detection, image recognition.</div>
                         <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">Gradient
                                 boosting</a>, <a href="#" class="card-link">nearest neighbors</a>, <a href="#"
@@ -545,7 +548,8 @@
                             outcomes.</div>
                         <div class="card-meta"><strong>Algorithms:</strong> <a href="#" class="card-link">k-Means</a>,
                             <a href="#" class="card-link">HDBSCAN</a>, <a href="#" class="card-link">hierarchical
-                                clustering</a>, and <a href="#" class="card-link">more...</a></div>
+                                clustering</a>, and <a href="#" class="card-link">more...</a>
+                        </div>
                     </div>
                     <div class="card-img-wrapper">
                         <img src="clustering.png" alt="Clustering Demo" class="real-img">
@@ -597,17 +601,22 @@
             </div>
 
             <div id="chatToggleBtn" style="text-align: right; margin-top: 15px;">
-                <span style="color: #222a2f; font-size: 10px; cursor: pointer; user-select: none;" title="Smart Search">▼</span>
+                <span style="color: #222a2f; font-size: 10px; cursor: pointer; user-select: none;"
+                    title="Smart Search">▼</span>
             </div>
 
             <!-- Smart Search Bar  -->
             <div class="chat-section" style="display: none;">
-                <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Smart Search</h4>
+                <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Smart
+                    Search</h4>
                 <div class="chat-box" id="chatBox"></div>
                 <div id="attachmentsContainer" style="margin-bottom:10px;"></div>
                 <div class="chat-input-row">
-                    <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить файл">📎</label>
-                    <input type="file" id="fileInput" accept="image/*,.csv,.txt,.json,.py" multiple style="display:none;" onchange="previewFile(this)">
+                    <label for="fileInput"
+                        style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;"
+                        title="Прикрепить файл">📎</label>
+                    <input type="file" id="fileInput" accept="image/*,.csv,.txt,.json,.py" multiple
+                        style="display:none;" onchange="previewFile(this)">
                     <input type="text" id="userInput" placeholder="Search documentation or ask a question..."
                         onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Send</button>
@@ -617,7 +626,7 @@
     </div>
 
     <script>
-        document.getElementById('chatToggleBtn').addEventListener('click', function() {
+        document.getElementById('chatToggleBtn').addEventListener('click', function () {
             const chat = document.querySelector('.chat-section');
             if (chat.style.display === 'none') {
                 chat.style.display = 'block';
@@ -626,7 +635,7 @@
             }
         });
 
-        document.getElementById('userInput').addEventListener('paste', function(e) {
+        document.getElementById('userInput').addEventListener('paste', function (e) {
             const clipboardData = e.clipboardData || window.clipboardData || (e.originalEvent && e.originalEvent.clipboardData);
             if (!clipboardData) return;
             const items = clipboardData.items;
@@ -652,7 +661,7 @@
 
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     attachedImages.push({
                         name: file.name || "pasted_image.png",
                         base64: event.target.result.split(',')[1],
@@ -667,7 +676,7 @@
                     return;
                 }
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     attachedTexts.push({
                         name: file.name || "pasted_text.txt",
                         content: event.target.result
@@ -679,7 +688,7 @@
         }
 
         function previewFile(input) {
-            for(let i = 0; i < input.files.length; i++) {
+            for (let i = 0; i < input.files.length; i++) {
                 handleFile(input.files[i]);
             }
             input.value = ""; // Очищаем чтобы можно было выбрать тот же файл снова
@@ -688,7 +697,7 @@
         function renderAttachments() {
             const container = document.getElementById("attachmentsContainer");
             container.innerHTML = "";
-            
+
             attachedImages.forEach((img, idx) => {
                 container.innerHTML += `
                     <div style="position:relative; display:inline-block; margin-right:10px; margin-bottom:5px;">
@@ -723,15 +732,15 @@
 
             // Показываем сообщение пользователя
             let userHtml = `<div class="msg user">🔍 ${userText || '<em>Search</em>'}`;
-            
+
             attachedTexts.forEach(txt => {
                 userHtml += `<br><em style="color:#aaa;">📄 ${txt.name}</em>`;
             });
-            
+
             attachedImages.forEach(img => {
                 userHtml += `<br><img src="${img.src}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
             });
-            
+
             userHtml += `</div>`;
             chatBox.innerHTML += userHtml;
             inputField.value = "";
