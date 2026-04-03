@@ -21,23 +21,23 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 ssl_ctx = ssl.create_default_context()
 
 
-def call_openrouter(messages, image_base64=None):
+def call_openrouter(messages, images=None):
     """Отправить запрос к OpenRouter API"""
 
-    # Если есть изображение — преобразуем последнее user-сообщение в multimodal формат
-    if image_base64:
+    # Если есть изображения — преобразуем последнее user-сообщение в multimodal формат
+    if images:
         for msg in reversed(messages):
             if msg.get("role") == "user":
-                text = msg.get("content", "Что изображено на этом скриншоте?")
-                msg["content"] = [
-                    {"type": "text", "text": text},
-                    {
+                text = msg.get("content", "Что изображено на этих скриншотах?")
+                new_content = [{"type": "text", "text": text}]
+                for img_b64 in images:
+                    new_content.append({
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/png;base64,{image_base64}"
+                            "url": f"data:image/png;base64,{img_b64}"
                         }
-                    }
-                ]
+                    })
+                msg["content"] = new_content
                 break
 
     payload = json.dumps({
@@ -70,10 +70,14 @@ class ProxyHandler(SimpleHTTPRequestHandler):
             body = self.rfile.read(content_length)
             user_data = json.loads(body)
             messages = user_data.get("messages", [])
-            image_base64 = user_data.get("image")
+            images = user_data.get("images", [])
+            
+            # Поддержка старого формата, если вдруг отправили одно
+            if "image" in user_data and user_data["image"]:
+                images.append(user_data["image"])
 
             try:
-                result = call_openrouter(messages, image_base64)
+                result = call_openrouter(messages, images)
 
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")

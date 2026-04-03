@@ -604,18 +604,10 @@
             <div class="chat-section" style="display: none;">
                 <h4 style="margin-top:0; color: #999; font-weight: 500; font-size: 15px; margin-bottom: 15px;">Smart Search</h4>
                 <div class="chat-box" id="chatBox"></div>
-                <!-- Превью прикреплённого изображения -->
-                <div id="imagePreview" style="display:none; margin-bottom:10px; position:relative; display:inline-block;">
-                    <img id="previewImg" style="max-height:80px; border-radius:6px; border:1px solid #3d454b;">
-                    <button onclick="removeImage()" style="position:absolute; top:-8px; right:-8px; background:#d9534f; color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; line-height:22px; padding:0;">✕</button>
-                    <!-- Блок для отображения названия текстового файла -->
-                    <div id="textFilePreview" style="display:none; background:#1a2024; border:1px solid #3d454b; border-radius:4px; padding:8px 12px; font-size:13px; color:#aaa; margin-top:5px;">
-                        📄 <span id="textFileName"></span>
-                    </div>
-                </div>
+                <div id="attachmentsContainer" style="margin-bottom:10px;"></div>
                 <div class="chat-input-row">
                     <label for="fileInput" style="cursor:pointer; padding:12px 14px; background:#2a3035; border:1px solid #3d454b; border-radius:20px; font-size:18px; transition: background 0.2s;" title="Прикрепить файл">📎</label>
-                    <input type="file" id="fileInput" accept="image/*,.csv,.txt,.json,.py" style="display:none;" onchange="previewFile(this)">
+                    <input type="file" id="fileInput" accept="image/*,.csv,.txt,.json,.py" multiple style="display:none;" onchange="previewFile(this)">
                     <input type="text" id="userInput" placeholder="Search documentation or ask a question..."
                         onkeypress="handleKeyPress(event)">
                     <button onclick="sendMessage()">Send</button>
@@ -652,58 +644,74 @@
             }
         });
 
-        let attachedImageBase64 = null;
-        let attachedImageName = null;
-        let attachedTextContent = null;
-        let attachedFileName = null;
+        let attachedImages = [];
+        let attachedTexts = [];
 
         function handleFile(file) {
             if (!file) return;
 
-            attachedImageBase64 = null;
-            attachedTextContent = null;
-
             if (file.type.startsWith('image/')) {
-                attachedImageName = file.name || "pasted_image.png";
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    attachedImageBase64 = event.target.result.split(',')[1];
-                    document.getElementById("previewImg").src = event.target.result;
-                    document.getElementById("previewImg").style.display = "inline-block";
-                    document.getElementById("textFilePreview").style.display = "none";
-                    document.getElementById("imagePreview").style.display = "inline-block";
+                    attachedImages.push({
+                        name: file.name || "pasted_image.png",
+                        base64: event.target.result.split(',')[1],
+                        src: event.target.result
+                    });
+                    renderAttachments();
                 };
                 reader.readAsDataURL(file);
             } else {
-                // Текстовый файл (CSV, TXT и т.д.)
-                if (file.size > 100 * 1024) { // Ограничение в 100 КБ, чтобы не сжечь токены
-                    alert("Файл слишком большой! Пожалуйста, загрузи файл меньше 100 КБ, иначе API выдаст ошибку токенов.");
+                if (file.size > 100 * 1024) {
+                    alert("Файл " + file.name + " слишком большой! Пожалуйста, загрузи файл меньше 100 КБ.");
                     return;
                 }
-                attachedFileName = file.name || "pasted_text.txt";
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    attachedTextContent = event.target.result;
-                    document.getElementById("textFileName").innerText = attachedFileName;
-                    document.getElementById("textFilePreview").style.display = "inline-block";
-                    document.getElementById("previewImg").style.display = "none";
-                    document.getElementById("imagePreview").style.display = "inline-block";
+                    attachedTexts.push({
+                        name: file.name || "pasted_text.txt",
+                        content: event.target.result
+                    });
+                    renderAttachments();
                 };
                 reader.readAsText(file);
             }
         }
 
         function previewFile(input) {
-            handleFile(input.files[0]);
+            for(let i = 0; i < input.files.length; i++) {
+                handleFile(input.files[i]);
+            }
+            input.value = ""; // Очищаем чтобы можно было выбрать тот же файл снова
         }
 
-        function removeImage() {
-            attachedImageBase64 = null;
-            attachedImageName = null;
-            attachedTextContent = null;
-            attachedFileName = null;
-            document.getElementById("imagePreview").style.display = "none";
-            document.getElementById("fileInput").value = "";
+        function renderAttachments() {
+            const container = document.getElementById("attachmentsContainer");
+            container.innerHTML = "";
+            
+            attachedImages.forEach((img, idx) => {
+                container.innerHTML += `
+                    <div style="position:relative; display:inline-block; margin-right:10px; margin-bottom:5px;">
+                        <img src="${img.src}" style="max-height:80px; border-radius:6px; border:1px solid #3d454b;">
+                        <button onclick="removeAttachment('image', ${idx})" style="position:absolute; top:-8px; right:-8px; background:#d9534f; color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; line-height:22px; padding:0;">✕</button>
+                    </div>
+                `;
+            });
+
+            attachedTexts.forEach((txt, idx) => {
+                container.innerHTML += `
+                    <div style="position:relative; display:inline-block; margin-right:10px; margin-bottom:5px; background:#1a2024; border:1px solid #3d454b; border-radius:4px; padding:8px 12px; font-size:13px; color:#aaa;">
+                        📄 <span>${txt.name}</span>
+                        <button onclick="removeAttachment('text', ${idx})" style="position:absolute; top:-8px; right:-8px; background:#d9534f; color:white; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:14px; line-height:22px; padding:0;">✕</button>
+                    </div>
+                `;
+            });
+        }
+
+        function removeAttachment(type, idx) {
+            if (type === 'image') attachedImages.splice(idx, 1);
+            if (type === 'text') attachedTexts.splice(idx, 1);
+            renderAttachments();
         }
 
         async function sendMessage() {
@@ -711,13 +719,19 @@
             const chatBox = document.getElementById("chatBox");
             const userText = inputField.value.trim();
 
-            if (!userText && !attachedImageBase64 && !attachedTextContent) return;
+            if (!userText && attachedImages.length === 0 && attachedTexts.length === 0) return;
 
             // Показываем сообщение пользователя
-            let userHtml = `<div class="msg user">🔍 ${userText || (attachedTextContent ? `<em>File attached: ${attachedFileName}</em>` : '<em>Image search</em>')}`;
-            if (attachedImageBase64) {
-                userHtml += `<br><img src="data:image/png;base64,${attachedImageBase64}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
-            }
+            let userHtml = `<div class="msg user">🔍 ${userText || '<em>Search</em>'}`;
+            
+            attachedTexts.forEach(txt => {
+                userHtml += `<br><em style="color:#aaa;">📄 ${txt.name}</em>`;
+            });
+            
+            attachedImages.forEach(img => {
+                userHtml += `<br><img src="${img.src}" style="max-height:100px; border-radius:4px; margin-top:8px; border:1px solid #3d454b;">`;
+            });
+            
             userHtml += `</div>`;
             chatBox.innerHTML += userHtml;
             inputField.value = "";
@@ -728,10 +742,10 @@
             chatBox.innerHTML += `<div class="msg" id="${loadingId}" style="color: #777; border-color: #333; font-style: italic;">[Searching documentation...]</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            let promptContent = userText || "Что изображено на этом скриншоте?";
-            if (attachedTextContent) {
-                promptContent += `\n\n[Содержимое файла ${attachedFileName}]:\n\`\`\`\n${attachedTextContent}\n\`\`\``;
-            }
+            let promptContent = userText || "Что изображено на этих скриншотах?";
+            attachedTexts.forEach(txt => {
+                promptContent += `\n\n[Содержимое файла ${txt.name}]:\n\`\`\`\n${txt.content}\n\`\`\``;
+            });
 
             // Формируем запрос
             const requestBody = {
@@ -741,13 +755,14 @@
                 ]
             };
 
-            if (attachedImageBase64) {
-                requestBody.image = attachedImageBase64;
-                requestBody.image_name = attachedImageName || "screenshot.png";
+            if (attachedImages.length > 0) {
+                requestBody.images = attachedImages.map(img => img.base64);
             }
 
-            // Сбрасываем прикреплённое изображение
-            removeImage();
+            // Очищаем прикрепленные файлы
+            attachedImages = [];
+            attachedTexts = [];
+            renderAttachments();
 
             try {
                 const response = await fetch("/api/chat", {
